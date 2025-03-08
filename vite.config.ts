@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     build: {
+      base: "/unduck/",
       outDir: "build",
     },
   };
