@@ -1,32 +1,61 @@
-name: Deploy to GitHub Pages
+name: CI
 
 on:
   push:
-    branches:
-      - main  # Or your main branch name
-  workflow_dispatch: # Allows manual triggering
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CI: false
 
 jobs:
-  build-and-deploy:
+  build:
+
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      pages: 'write'
+      actions: 'write'
+      checks: 'write'
+      deployments: 'write'
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  # Or your desired Node.js version
-
-      - name: Install dependencies
-        run: npm install  
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install dependencies
+      # Using npm ci is generally faster than running npm i because it caches dependencies
+      run: |
+        npm ci
+    - name: Build the app
+      run: |
+        npm run build
+    - name: Run component tests
+      run: |
+        npm run test
         
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build  # The directory Vite builds to
-          # cname: your-custom-domain.com # Uncomment and set if using a custom domain
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        # Upload build directory content
+        path: 'build/'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
+      env:  
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
