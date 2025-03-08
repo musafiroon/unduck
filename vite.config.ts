@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
         tEnd: "}%",
         replaceFiles: [resolve(join(__dirname, "/build/opensearch.xml"))],
         replace: {
-          VITE_PUBLIC_URL: "https://musafiroon.github.io/unduck",
+          VITE_PUBLIC_URL: process.env.VITE_PUBLIC_URL,
           
         },
       }),
