@@ -28,5 +28,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist  # The directory Vite builds to
+          publish_dir: ./build  # The directory Vite builds to
           # cname: your-custom-domain.com # Uncomment and set if using a custom domain
