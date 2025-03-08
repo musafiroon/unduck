@@ -39,7 +39,7 @@ jobs:
     - name: Install dependencies
       # Using npm ci is generally faster than running npm i because it caches dependencies
       run: |
-        npm ci
+        npm i
     - name: Build the app
       run: |
         npm run build
